@@ -31,3 +31,4 @@ typing-extensions==4.15.0
 typing-inspection==0.4.2
 uritemplate==4.2.0
 urllib3==2.5.0
+python-dotenv==1.0.1
