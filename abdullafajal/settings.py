@@ -14,7 +14,10 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv() # Load environment variables from .env file
+def str_to_bool(value):
+    return value.lower() in ("true", "1", "t", "yes", "True")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,10 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-88!z%nsl^+$5&u$7i207q%zuese=x3o87p4drkh7)0%t5s(bl=")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "MY-DUMMY-API-KEY")
-
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+DEBUG = str_to_bool(os.environ.get("DEBUG", "True"))
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 
@@ -93,7 +96,7 @@ DATABASES = {
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_USE_TLS = str_to_bool(os.environ.get('EMAIL_USE_TLS', 'True'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@abdullafajal.com')
