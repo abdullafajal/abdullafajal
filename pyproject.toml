@@ -10,4 +10,5 @@ dependencies = [
     "google-generativeai>=0.8.5",
     "pillow>=12.0.0",
     "dotenv>=0.9.9",
+    "django-pwa>=2.0.1",
 ]
