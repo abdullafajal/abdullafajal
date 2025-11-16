@@ -21,6 +21,16 @@
     {% block head_extra %}{% endblock %}
 </head>
 <body class="theme-light">
+    <div class="messages-container fixed-top container mt-3" style="z-index: 1050;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
     <div class="page">
         {% include "portfolio/_navbar.html" %}
 
@@ -41,7 +51,20 @@
     <!-- Theme JS -->
     <script src="{% static 'js/theme.js' %}"></script>
 
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss messages after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000); // 5000 milliseconds = 5 seconds
+        });
+    </script>
+    {% endblock %}
 
     {% include "portfolio/_chat.html" %}
 </body>
