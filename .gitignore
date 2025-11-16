@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg
+.env
+.venv/
+venv/
+env/
+
+# OS-specific files
+.DS_Store
+.Trashes
+Thumbs.db
+
+# Django-specific files
+*.log
+*.pot
+*.mo
+*.sqlite3
+db.sqlite3
+media/
+
+# IDE-specific files
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*~
+*.bak
+*.swp
+*.swo
+*.py.orig
+*.pyc.orig
+*.pyc.bak
+
+# User-specific files
+.env.dev
+uv.lock

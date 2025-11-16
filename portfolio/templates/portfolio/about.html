@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About - Abdulla Fajal{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-body">
+        <section class="py-5 bg-surface">
+            <div class="container-xl">
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-6">
+                        <span class="section-badge">About Me</span>
+                        <h1 class="display-5 fw-bold mt-3">Hi, I'm <span class="text-gradient">Abdulla Fajal</span></h1>
+                        <p class="lead text-muted mt-3">I build scalable web applications and elegant user experiences using Django, Python and modern frontend tooling. I enjoy problem-solving, contributing to open-source, and integrating AI into useful products.</p>
+
+                        <div class="row mt-4 g-3">
+                            <div class="col-sm-6">
+                                <div class="card p-3 card-hover">
+                                    <h6 class="mb-1">Experience</h6>
+                                    <p class="text-muted mb-0">5+ years building web apps & APIs</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="card p-3 card-hover">
+                                    <h6 class="mb-1">Projects</h6>
+                                    <p class="text-muted mb-0">Multiple production apps, REST APIs, integrations</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a class="btn btn-gradient btn-lg me-3" href="{% url 'portfolio:projects' %}">View Projects</a>
+                            <a class="btn btn-outline-primary btn-lg" href="{% url 'portfolio:contact' %}">Contact Me</a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3 p-4 bg-white rounded shadow-sm">
+                                    <img src="{% static 'images/default.jpg' %}" alt="profile" width="120" height="120" class="rounded-circle"/>
+                                    <div>
+                                        <h5 class="mb-0">Abdulla Fajal</h5>
+                                        <div class="text-muted">Full-Stack Developer</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card p-4 h-100 card-hover">
+                                    <h6 class="mb-2">Languages & Frameworks</h6>
+                                    <p class="text-muted mb-0">Python, Django, Django REST Framework, Flask, JavaScript</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card p-4 h-100 card-hover">
+                                    <h6 class="mb-2">Databases & Tools</h6>
+                                    <p class="text-muted mb-0">PostgreSQL, Redis, Docker, Git</p>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mt-2">
+                                <div class="card p-4 card-hover">
+                                    <h6 class="mb-2">Cloud & DevOps</h6>
+                                    <p class="text-muted mb-0">AWS (EC2, S3), Firebase, Nginx, CI/CD</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience timeline -->
+        <section class="py-5">
+            <div class="container-xl">
+                <div class="text-center mb-5">
+                    <span class="section-badge">Experience</span>
+                    <h2 class="display-6 fw-bold mt-3">Where I've Worked</h2>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card p-4 card-hover">
+                            <h5 class="mb-1">Aquevix Pvt. Ltd.</h5>
+                            <div class="text-muted small">Apr 2024 – Present — New Delhi, India</div>
+                            <ul class="mt-2 mb-0 text-muted">
+                                <li>Built streaming and subscription features for a media platform.</li>
+                                <li>Designed REST APIs and managed PostgreSQL databases.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4 card-hover">
+                            <h5 class="mb-1">Freelance / Espere Project</h5>
+                            <div class="text-muted small">2023 – 2024 — Remote</div>
+                            <ul class="mt-2 mb-0 text-muted">
+                                <li>Delivered a multi-feature platform with live chat, social features and embedded compiler.</li>
+                                <li>Integrated Redis and WebSockets for real-time features and deployed to AWS.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,96 @@
+:root,
+/* [data-bs-theme=light] {
+  --px-theme:	#e6e4bf;  
+  --px-theme-text:	#1c1d06;
+  
+  --px-bg:	#fffcf3;
+  --px-text:	#48473a;
+
+
+  --px-gray-1:	#f4f1e4;
+  --px-gray-2:	#f0eddd;
+  --px-gray-3:	#ebe8d6;
+  --px-gray-4:	#e9e7d3;
+  --px-gray-5:	#e6e4ce;
+
+  
+  --bs-heading-color:	#1c1c16;
+  --px-border:	#e6e3d1;
+
+  
+} */
+
+/* [data-bs-theme=light] {
+  --px-theme: #9b7eb8;  
+  --px-theme-text: #2d1a3d;
+  
+  --px-bg: #faf8fc;
+  --px-text: #4a3d54;
+
+  --px-gray-1: #f0ebf5;
+  --px-gray-2: #ebe4f2;
+  --px-gray-3: #e6ddee;
+  --px-gray-4: #e3d9eb;
+  --px-gray-5: #dfd4e8;
+
+  --bs-heading-color: #2d1a3d;
+  --px-border: #d9cfe6;
+} */
+
+
+/* [data-bs-theme=light] {
+  --px-theme: #6a4fb6;  
+  --px-theme-text: #232136;  
+  
+  --px-bg: #f7f6fa;    
+  --px-text: #232136;  
+
+  --px-gray-1: #eceaf3;
+  --px-gray-2: #e5e2ef;
+  --px-gray-3: #d3cee4;
+  --px-gray-4: #bfb9d6;
+  --px-gray-5: #a9a2bc;
+
+  --bs-heading-color: #6a4fb6;
+  --px-border: #d3cee4;       
+} */
+
+[data-bs-theme=light] {
+  /* Primary Action Colors */
+  --px-theme: #154d71;
+  --px-theme-text: #FFFFFF;
+
+  /* Base Background & Text */
+  --px-bg: #F7FBFF;
+  --px-text: #181C1F;
+
+  /* Neutral "Gray" Ramp (for cards, dividers, borders) */
+  --px-gray-1: #EDF1F6;  /* Neutral 95 */
+  --px-gray-2: #DCE4E9;  /* Neutral 90 (Surface Variant) */
+  --px-gray-3: #BFC8CE;  /* Neutral 80 (Outline Variant) */
+  --px-gray-4: #8B9297;  /* Neutral 60 */
+  --px-gray-5: #6F787D;  /* Neutral 50 (Outline) */
+
+  /* Bootstrap & Component Overrides */
+  --bs-heading-color: var(--px-theme);
+  --px-border: var(--px-gray-3); /* Using Outline Variant for borders */
+}
+
+
+
+[data-bs-theme=dark] {
+  --px-theme:	#48482d;
+  --px-theme-text:	#e6e4bf;
+
+  --px-bg:	#1c1c16;
+  --px-text:	#c9c7b6;
+  
+  --px-gray-1:	#28281c;
+  --px-gray-2:	#2d2d1e;
+  --px-gray-3:	#323220;
+  --px-gray-4:	#343421;
+  --px-gray-5:	#373722;
+
+  --bs-heading-color:	#e5e2d9;
+  --px-border:	#48473a;
+}

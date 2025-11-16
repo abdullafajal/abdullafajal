@@ -1,0 +1,314 @@
+{% load static %}
+
+<style>
+
+        .navbar-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            {% comment %} max-width: 1200px; {% endcomment %}
+            z-index: 1100;
+            padding: 0 15px;
+        }
+
+        .navbar-glass {
+            background: rgba(var(--tblr-body-bg-rgb), 0.7);
+            backdrop-filter: blur(80px);
+            -webkit-backdrop-filter: blur(80px);
+            border-radius: 60px;
+            border: 1px solid var(--tblr-border-color);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1),
+                        0 2px 8px 0 rgba(0, 0, 0, 0.05);
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-glass:hover {
+            background: rgba(var(--tblr-body-bg-rgb), 0.8);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--tblr-body-color) !important;
+            text-decoration: none;
+            margin: 0;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .navbar-brand a {
+            color: var(--tblr-body-color) !important;
+            text-decoration: none;
+        }
+
+        .navbar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-item {
+            margin: 0;
+        }
+
+        .nav-link {
+            color: var(--tblr-body-color) !important;
+            font-weight: 500;
+            padding: 10px 20px !important;
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: var(--tblr-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: var(--tblr-primary);
+            color: var(--tblr-primary-fg) !important;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--tblr-primary-fg);
+            border-radius: 50%;
+        }
+
+        .btn-contact {
+            background: var(--tblr-primary);
+            color: var(--tblr-primary-fg) !important;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .btn-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(var(--tblr-primary-rgb), 0.3);
+            background: var(--tblr-primary);
+            filter: brightness(1.1);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--tblr-body-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .navbar-container {
+                width: 90%;
+                top: 15px;
+            }
+
+            .navbar-glass {
+                padding: 12px 16px;
+                border-radius: 50px;
+            }
+
+            .navbar-brand {
+                font-size: 1.25rem;
+                padding: 8px 12px;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 400px;
+                flex-direction: column;
+                gap: 8px;
+                background: rgba(var(--tblr-body-bg-rgb), 0.7);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-radius: 30px;
+                border: 1px solid var(--tblr-border-color);
+                padding: 16px;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-links.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .nav-item {
+                width: 100%;
+            }
+
+            .nav-link {
+                display: block;
+                text-align: center;
+                width: 100%;
+                padding: 12px 20px !important;
+            }
+
+            .btn-contact {
+                width: 100%;
+                text-align: center;
+                padding: 12px 24px;
+            }
+
+            .nav-actions {
+                width: 100%;
+            }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .navbar-container {
+                width: 92%;
+            }
+
+            .nav-links {
+                gap: 4px;
+            }
+
+            .nav-link {
+                padding: 10px 16px !important;
+                font-size: 0.95rem;
+            }
+
+            .btn-contact {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1025px) {
+            .navbar-glass {
+                padding: 14px 32px;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+        }
+
+        /* Demo Content */
+        .demo-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: var(--tblr-body-color);
+            text-align: center;
+        }
+
+        .demo-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .demo-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+    </style>
+
+<div class="container navbar-container">
+        <nav class="navbar-glass">
+            <div class="navbar-content">
+                <h1 class="navbar-brand">
+                    <a href="{% url 'portfolio:home' %}">Abdulla Fajal</a>
+                </h1>
+                
+                <button class="mobile-toggle" id="mobileToggle">
+                    ☰
+                </button>
+
+                <div class="nav-links" id="navLinks">
+                    <div class="nav-item">
+                        <a href="{% url 'portfolio:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'portfolio:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'portfolio:projects' %}" class="nav-link {% if request.resolver_match.url_name == 'projects' %}active{% endif %}">Projects</a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{% url 'portfolio:resume' %}" class="nav-link {% if request.resolver_match.url_name == 'resume' %}active{% endif %}">Resume</a>
+                    </div>
+                    <div class="nav-item nav-actions">
+                        <a href="{% url 'portfolio:contact' %}" class="btn-contact">Contact Me</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+<script>
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            mobileToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.navbar-glass')) {
+                navLinks.classList.remove('active');
+                mobileToggle.textContent = '☰';
+            }
+        });
+
+        // Close menu when clicking on a link
+        document.querySelectorAll('.nav-link, .btn-contact').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileToggle.textContent = '☰';
+            });
+        });
+    </script>

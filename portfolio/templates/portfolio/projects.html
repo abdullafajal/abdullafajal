@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Projects - Abdulla Fajal{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-body">
+        <div class="container-xl">
+            <!-- Projects Section -->
+            <div class="projects-section my-5">
+                <h2 class="text-center mb-4">Featured Projects</h2>
+                <div class="row g-4">
+                    {% for project in projects %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card project-card">
+                            <img src="{% if project.image %}{{ project.image.url }}{% elif project.image_url %}{{ project.image_url }}{% else %}{% static 'images/default.jpg' %}{% endif %}" class="card-img-top" alt="{{ project.title }}">
+                            <div class="card-body">
+                                <h3 class="card-title">{{ project.title }}</h3>
+                                <p class="text-muted">{{ project.tech_stack }}</p>
+                                <a href="{{ project.link }}" class="btn btn-sm btn-outline-primary" target="_blank">View Project</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
