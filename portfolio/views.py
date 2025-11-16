@@ -1,3 +1,4 @@
+import threading
 import json
 import os
 from datetime import datetime, timedelta
@@ -20,6 +21,20 @@ try:
 except AttributeError:
     print("Warning: GEMINI_API_KEY not found in settings. The agent will not work.")
     pass
+
+def _send_mail_async(subject, message, from_email, recipient_list, html_message):
+    """Helper function to send email in a separate thread."""
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=from_email,
+            recipient_list=recipient_list,
+            html_message=html_message,
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Error sending email asynchronously: {e}")
 
 
 # --- Helper Functions ---
@@ -102,14 +117,16 @@ def contact_view(request):
                 'message': message_text,
             })
             try:
-                send_mail(
-                    subject=f'New Portfolio Message from {name} ({subject})',
-                    message=f'From: {name}\nEmail: {email}\n\n{message_text}',
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
-                    recipient_list=[getattr(settings, 'ADMIN_EMAIL', 'abdullafajal@gmail.com')],
-                    html_message=admin_html_message,
-                    fail_silently=False,
-                )
+                threading.Thread(
+                    target=_send_mail_async,
+                    args=(
+                        f'New Portfolio Message from {name} ({subject})',
+                        f'From: {name}\nEmail: {email}\n\n{message_text}',
+                        getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
+                        [getattr(settings, 'ADMIN_EMAIL', 'abdullafajal@gmail.com')],
+                        admin_html_message,
+                    )
+                ).start()
             except Exception as e:
                 # don't break the user flow if email sending fails
                 print(f"Error sending admin email: {e}")
@@ -121,14 +138,16 @@ def contact_view(request):
                 'message': message_text,
             })
             try:
-                send_mail(
-                    subject='Thank you for your message!',
-                    message=f'Hi {name},\n\nThank you for your message. I will get back to you shortly.\n\nBest,\nAbdulla Fajal',
-                    from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
-                    recipient_list=[email],
-                    html_message=user_html_message,
-                    fail_silently=False,
-                )
+                threading.Thread(
+                    target=_send_mail_async,
+                    args=(
+                        'Thank you for your message!',
+                        f'Hi {name},\n\nThank you for your message. I will get back to you shortly.\n\nBest,\nAbdulla Fajal',
+                        getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
+                        [email],
+                        user_html_message,
+                    )
+                ).start()
             except Exception as e:
                 print(f"Error sending confirmation email to user: {e}")
                 messages.warning(request, "There was a problem sending the confirmation email, but your message was received.")
