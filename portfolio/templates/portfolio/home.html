@@ -18,6 +18,16 @@
   </head>
 
   <body>
+    <div class="messages-container fixed-top w-50 ms-auto p-3" style="z-index: 1050;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-message alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
     <header class="main-header d-lg-none">
       <div class="container">
         <div class="logo">
@@ -753,6 +763,18 @@
     <script src="{% static 'js/scrollIt.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/fontawesome.min.js" integrity="sha512-obFNtQ1JKCrxPBPLmYDUevlriATl5EhvwU3CFtdW/HKOkeAe0bbsyZfHO44/f1QyndrZJ464TQvrRP9ZjyXSSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss messages after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    var bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000); // 5000 milliseconds = 5 seconds
+        });
+    </script>
     <!-- end -->
   </body>
 </html>
