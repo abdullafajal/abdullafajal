@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "portfolio",
     "dynamic_preferences",
+    "pwa",
 ]
 
 MIDDLEWARE = [
@@ -149,4 +150,70 @@ MEDIA_ROOT = BASE_DIR / "media"
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# PWA Settings
+PWA_APP_NAME = "Abdulla Fajal"
+PWA_APP_DESCRIPTION = "Abdulla Fajal's Personal Portfolio"
+PWA_APP_THEME_COLOR = "#000000"
+PWA_APP_BACKGROUND_COLOR = "#ffffff"
+PWA_APP_DISPLAY = "standalone"
+PWA_APP_ORIENTATION = "any"
+PWA_APP_START_URL = "/"
+PWA_APP_SCOPE = "/"
+PWA_APP_ICONS = [
+    {
+        "src": "/static/icons/icon-72-72.png",
+        "sizes": "72x72",
+        "type": "image/png",
+    },
+    {
+        "src": "/static/icons/icon-96x96.png",
+        "sizes": "96x96",
+        "type": "image/png",
+    },
+    {
+        "src": "/static/icons/icon-144x144.png",
+        "sizes": "144x144",
+        "type": "image/png",
+    },
+    {
+        "src": "/static/icons/icon-192-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+    },
+    {
+        "src": "/static/icons/icon-512-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+    },
+]
+PWA_APP_ICONS_APPLE = [
+    {
+        "src": "/static/icons/icon-192-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        "src": "static/icons/icon-512-512.png",
+        "media": "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
+    }
+]
+PWA_APP_DIR = "ltr"
+PWA_APP_LANG = "en-US"
+PWA_APP_SHORT_NAME = "Abdulla Fajal"
+PWA_APP_URLS = (
+    "/",
+    "/contact/",
+    "/projects/",
+    "/resume/",
+    "/about/",
+)
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, "static/serviceworker.js")
+

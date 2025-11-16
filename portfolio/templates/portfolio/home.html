@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static i18n %}
+{% load static i18n pwa %}
 <html lang="en" data-bs-theme="light">
   <head>
     <meta charset="utf-8" />
@@ -15,6 +15,7 @@
     <!-- theme css -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet" />
     <link href="{% static 'css/color-1.css' %}" rel="stylesheet" />
+    {% progressive_web_app_meta %}
   </head>
 
   <body>
