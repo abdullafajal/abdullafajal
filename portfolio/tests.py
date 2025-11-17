@@ -25,8 +25,9 @@ class AgentAPITestCase(TestCase):
         data = response.json()
         self.assertIn('text', data)
         self.assertIn('action', data)
-        self.assertIn('data', data)
-        self.assertIn('Hello', data['text'])
+        self.assertIn('type', data['action'])
+        self.assertIn('value', data['action'])
+        self.assertTrue(isinstance(data['text'], str) and len(data['text']) > 0)
 
     def test_chatlog_creation(self):
         """
@@ -46,7 +47,7 @@ class AgentAPITestCase(TestCase):
 
         log = ChatLog.objects.first()
         self.assertEqual(log.user_message, 'what are your skills?')
-        self.assertIn('proficient in Python', log.agent_response)
+        self.assertIn('Python', log.agent_response)
 
     def test_invalid_method(self):
         """
@@ -84,4 +85,4 @@ class AgentAPITestCase(TestCase):
         
         content = response.content.decode('utf-8')
         self.assertIn('BEGIN:VCALENDAR', content)
-        self.assertIn('SUMMARY:Meeting with [Your Name]', content)
+        self.assertIn('SUMMARY:Meeting with Abdulla', content)

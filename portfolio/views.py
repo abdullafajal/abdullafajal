@@ -39,21 +39,31 @@ def _send_mail_async(subject, message, from_email, recipient_list, html_message)
 
 # --- Helper Functions ---
 
+
 def generate_ics():
     """Generates a simple .ics file for a meeting."""
     now = datetime.utcnow()
     start_time = now + timedelta(days=1)
     end_time = start_time + timedelta(hours=1)
+
     ics_content = [
-        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MyPortfolio//EN",
-        "BEGIN:VEVENT", f"UID:{now.strftime('%Y%m%dT%H%M%SZ')}@mydomain.com",
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//MyPortfolio//EN",
+        "BEGIN:VEVENT",
+        f"UID:{now.strftime('%Y%m%dT%H%M%SZ')}@abdullafajal.pythonanywhere.com",
         f"DTSTAMP:{now.strftime('%Y%m%dT%H%M%SZ')}",
         f"DTSTART:{start_time.strftime('%Y%m%dT%H%M%SZ')}",
         f"DTEND:{end_time.strftime('%Y%m%dT%H%M%SZ')}",
-        "SUMMARY:Meeting with Abdulla", "DESCRIPTION:A brief introductory call.",
-        "LOCATION:Virtual", "END:VEVENT", "END:VCALENDAR"
+        "SUMMARY:Meeting with Abdulla",
+        "DESCRIPTION:A brief introductory call.",
+        "LOCATION:Virtual",
+        "END:VEVENT",
+        "END:VCALENDAR"
     ]
+
     return "\r\n".join(ics_content)
+
 
 
 def get_database_context():
@@ -64,7 +74,7 @@ def get_database_context():
 
     project_list = []
     for p in projects:
-        project_list.append(f"- Title: {p.title}, Tech: {p.tech_stack}, Description: {p.description}, Link: {p.link}")
+        project_list.append(f"- Title: {p.title}, Slug: {p.slug}, Tech: {p.tech_stack}, Description: {p.description}, Link: {p.link}")
     return "Here are the projects in my portfolio:\n" + "\n".join(project_list)
 
 
@@ -181,6 +191,7 @@ def get_resume_data():
             {
                 "title": "Senior Django Developer",
                 "company": "Aquevix Pvt. Ltd.",
+                "slug": "aquevix",
                 "location": "New Delhi, India",
                 "duration": "Apr 2024 – Present",
                 "points": [
@@ -194,6 +205,7 @@ def get_resume_data():
             {
                 "title": "Freelance Django Developer",
                 "company": "Espere Project",
+                "slug": "espere",
                 "location": "Remote",
                 "duration": "2023 – 2024",
                 "points": [
@@ -217,6 +229,24 @@ def get_resume_data():
     }
 
 
+def get_resume_summary(resume_data):
+    """Generates a concise text summary of the resume data."""
+    summary = f"Name: {resume_data['name']}\n"
+    summary += f"Email: {resume_data['email']}\n"
+    summary += f"Phone: {resume_data['mobile']}\n"
+    summary += f"Professional Summary: {resume_data['summary']}\n\n"
+    
+    summary += "Experience:\n"
+    for job in resume_data['experience']:
+        summary += f"- {job['title']} at {job['company']} ({job['duration']}).\n"
+        
+    summary += "\nKey Skills:\n"
+    for category, items in resume_data['skills'].items():
+        summary += f"- {category}: {', '.join(items)}\n"
+        
+    return summary
+
+
 @csrf_exempt
 def agent_query(request):
     """API endpoint to handle queries for the AI agent using Gemini."""
@@ -232,6 +262,7 @@ def agent_query(request):
     if not prompt:
         return JsonResponse({'error': 'Prompt is required'}, status=400)
 
+    # --- Handle meeting requests separately ---
     if "meeting" in prompt.lower() or "schedule" in prompt.lower():
         ics_file = generate_ics()
         response = HttpResponse(ics_file, content_type='text/calendar')
@@ -241,42 +272,86 @@ def agent_query(request):
 
     try:
         model = genai.GenerativeModel('gemini-2.5-flash')
-        db_context = get_database_context()
-        system_prompt = f"""
-        You are Abdulla, a professional full-stack developer, and this is your portfolio.
-        Your name is Abdulla.
-        You are acting as an AI assistant on your own portfolio website.
-        Be friendly, professional, and helpful.
-        Use the following database context about your projects to answer questions.
-        Do not make up projects. Only use the information provided below.
+        prompt_lower = prompt.lower()
+        
+        # Level 0: Simple Greetings (no context needed)
+        if prompt_lower in ["hi", "hello", "hey", "hola"]:
+            system_prompt = f"""
+You are "Abdulla's Assistant," a friendly and professional AI guide.
+Your response MUST be a valid JSON object with "text" and "action" fields.
+The "text" should be a brief, warm greeting. The "action" must be null.
 
-        If the user asks for your email or contact info, respond with:
-        "You can reach me at Email: abdullafajal@gmail.com Or call me at Mobile: +91-8958468602"
+**Response Format:**
+{{
+  "text": "Hi there! I'm Abdulla's AI assistant. How can I help you today?",
+  "action": {{ "type": null, "value": null }}
+}}
 
-        DATABASE CONTEXT:
-        {db_context}
+User prompt: {prompt}
+"""
+        else:
+            # Build context selectively
+            context_str = ""
+            
+            # Level 1 (Default): Resume Summary for most questions
+            resume_data = get_resume_data()
+            resume_summary = get_resume_summary(resume_data)
+            context_str += f"\n**Core Information (Resume & Skills Summary):**\n{resume_summary}"
 
-        Based on this, answer the user's prompt.
-        """
-        response = model.generate_content([system_prompt, f"User prompt: {prompt}"])
-        agent_response_text = response.text
+            # Level 2: Add Project context only if needed
+            if "project" in prompt_lower or "work" in prompt_lower:
+                project_context = get_database_context()
+                context_str += f"\n\n**Project Details:**\n{project_context}"
+
+            # --- Build the final system prompt ---
+            system_prompt = f"""
+You are "Abdulla's Assistant," a friendly and professional AI guide for my personal portfolio website. Your goal is to help users learn about my skills, projects, and experience in a concise and engaging way.
+
+**Core Instructions:**
+- Answer Concisely: Provide answers in 1-2 short sentences.
+- Use Provided Context: Base your answers *only* on the provided context. Do not invent details.
+- Contact Information: If asked for contact details, use the info from the context.
+
+**Context:**
+{context_str}
+
+**Response Format:**
+Your response MUST be a valid JSON object with "text" and "action" fields.
+
+**Action Guidance:**
+- When the user asks to see something on the current page, use the `highlight` action.
+- **Projects**: Use `{{ "type": "highlight", "value": "#portfolio" }}`.
+- **Services**: Use `{{ "type": "highlight", "value": "#services" }}`.
+- **Resume**: Use `{{ "type": "highlight", "value": "#resume" }}`.
+- **Skills**: Use `{{ "type": "highlight", "value": "#resume-skills" }}`.
+- **About Me**: Use `{{ "type": "highlight", "value": "#about" }}`.
+- **Contact**: Use `{{ "type": "highlight", "value": "#contactus" }}`.
+- When providing contact info, use the `email` action: `{{ "type": "email", "value": "abdullafajal@gmail.com" }}`.
+- If no specific action is relevant, the action should be `null`.
+
+---
+User prompt: {prompt}
+"""
+        # Generate content and parse the JSON response
+        response = model.generate_content([system_prompt])
+        
+        # Clean the response text to ensure it's valid JSON
+        cleaned_response_text = response.text.strip().replace("`", "")
+        if cleaned_response_text.startswith("json"):
+            cleaned_response_text = cleaned_response_text[4:]
+
+        response_data = json.loads(cleaned_response_text)
+        
+        # Ensure the response has the expected structure
+        if 'text' not in response_data or 'action' not in response_data:
+            raise ValueError("Invalid response structure from model")
+
+    except (Exception, json.JSONDecodeError) as e:
+        print(f"Error processing agent query: {e}")
         response_data = {
-            "text": agent_response_text,
-            "action": None,
-            "data": None
-        }
-        if "project" in prompt.lower():
-            response_data["action"] = "show_projects"
-        elif "contact" in prompt.lower() or "email" in prompt.lower():
-            response_data["action"] = "email"
-            response_data["data"] = {"email": "abdullafajal@gmail.com"}
-
-    except Exception as e:
-        print(f"Error calling Gemini API: {e}")
-        response_data = {
-            "text": "Sorry, I'm having trouble connecting to my brain right now. Please try again later.",
-            "action": None, "data": None
+            "text": "Sorry, I'm having a bit of trouble thinking right now. Please try again later.",
+            "action": {"type": None, "value": None}
         }
 
-    ChatLog.objects.create(user_message=prompt, agent_response=response_data["text"])
+    ChatLog.objects.create(user_message=prompt, agent_response=response_data.get("text", ""))
     return JsonResponse(response_data)

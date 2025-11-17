@@ -60,7 +60,7 @@
           </a>
         </li>
         <li>
-          <a data-scroll-nav="1" href="#services">
+          <a data-scroll-nav="1" href="#about">
             <span class="m-icon">
                 <i class='bx  bx-badge-info i-waight-800'></i> 
             </span>
@@ -76,7 +76,7 @@
           </a>
         </li>
         <li>
-          <a data-scroll-nav="3" href="#work">
+          <a data-scroll-nav="3" href="#portfolio">
             <span class="m-icon">
                 <i class='bx  bx-palette i-waight-800'></i> 
             </span>
@@ -91,8 +91,9 @@
             <span class="m-text">{% trans "Resume" %}</span>
           </a>
         </li>
+        
         <li>
-          <a data-scroll-nav="5" href="#contactus">
+          <a data-scroll-nav="6" href="#contactus">
             <span class="m-icon">
                 <i class='bx  bx-phone-book i-waight-800'></i> 
             </span>
@@ -421,7 +422,7 @@
           <div class="lightbox-gallery">
             <div class="row g-3 g-lg-4 portfolio-content">
               {% for project in projects %}
-              <div class="col-sm-6 col-lg-4 grid-item">
+              <div class="col-sm-6 col-lg-4 grid-item" id="project-{{ project.slug }}">
                 <div class="portfolio-box">
                   <div class="portfolio-text">
                     <h6>{{ project.title }}</h6>
@@ -509,7 +510,7 @@
               <div id="resume-experience" class="p-4 rounded mb-4">
                 <div class="title-01"><span>Experience</span></div>
                 {% for job in resume.experience %}
-                <div class="resume-job mt-3 pb-2 border-bottom">
+                <div class="resume-job mt-3 pb-2 border-bottom" id="experience-{{ job.slug }}">
                   <h6 class="mb-0">{{ job.title }} <small class="text-muted">— {{ job.company }}</small></h6>
                   <p class="mb-1"><small class="text-muted">{{ job.location }} · {{ job.duration }}</small></p>
                   <ul class="mb-2">
@@ -540,84 +541,8 @@
         </div>
       </section>
       <!-- End Resume -->
-      {% comment %} <!-- Testimonials -->
-      <section class="section testimonials-section">
-        <div class="container">
-          <div class="section-heading">
-            <h3><span>Testimonials</span></h3>
-          </div>
-          <div class="owl-carousel" data-items="3" data-nav-dots="true" data-lg-items="3" data-md-items="2" data-sm-items="1" data-xs-items="1" data-space="24" data-autoplay="false">
-            <div class="testimonials-box">
-              <div class="t-lead">
-                <img src="images/avatar-1.jpg" title="" alt="" />
-              </div>
-              <div class="t-text">
-                <h5>Customers and interested parties engaged.</h5>
-                <p>“I found it easy to capture my ideas and sketch visuals to sheare with my clints on the go”</p>
-                <div class="t-avatar">
-                  <h6>Jennifer Lutheran</h6>
-                  <span>CEO at pxdraft</span>
-                </div>
-              </div>
-            </div>
-            <div class="testimonials-box">
-              <div class="t-lead">
-                <img src="images/avatar-2.jpg" title="" alt="" />
-              </div>
-              <div class="t-text">
-                <h5>Customers and interested parties engaged.</h5>
-                <p>“I found it easy to capture my ideas and sketch visuals to sheare with my clints on the go”</p>
-                <div class="t-avatar">
-                  <h6>Jennifer Lutheran</h6>
-                  <span>CEO at pxdraft</span>
-                </div>
-              </div>
-            </div>
-            <div class="testimonials-box">
-              <div class="t-lead">
-                <img src="images/avatar-3.jpg" title="" alt="" />
-              </div>
-              <div class="t-text">
-                <h5>Customers and interested parties engaged.</h5>
-                <p>“I found it easy to capture my ideas and sketch visuals to sheare with my clints on the go”</p>
-                <div class="t-avatar">
-                  <h6>Jennifer Lutheran</h6>
-                  <span>CEO at pxdraft</span>
-                </div>
-              </div>
-            </div>
-            <div class="testimonials-box">
-              <div class="t-lead">
-                <img src="images/avatar-2.jpg" title="" alt="" />
-              </div>
-              <div class="t-text">
-                <h5>Customers and interested parties engaged.</h5>
-                <p>“I found it easy to capture my ideas and sketch visuals to sheare with my clints on the go”</p>
-                <div class="t-avatar">
-                  <h6>Jennifer Lutheran</h6>
-                  <span>CEO at pxdraft</span>
-                </div>
-              </div>
-            </div>
-            <div class="testimonials-box">
-              <div class="t-lead">
-                <img src="images/avatar-3.jpg" title="" alt="" />
-              </div>
-              <div class="t-text">
-                <h5>Customers and interested parties engaged.</h5>
-                <p>“I found it easy to capture my ideas and sketch visuals to sheare with my clints on the go”</p>
-                <div class="t-avatar">
-                  <h6>Jennifer Lutheran</h6>
-                  <span>CEO at pxdraft</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- End Testimonials --> {% endcomment %}
       <!-- contactus -->
-      <section id="contactus" data-scroll-index="5" class="section contactus-section gray-bg-1">
+      <section id="contactus" data-scroll-index="6" class="section contactus-section gray-bg-1">
         <div class="container">
           <div class="row gy-5">
             <div class="col-lg-5 d-flex">
@@ -763,6 +688,7 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/scrollIt.min.js' %}"></script>
     <script src="{% static 'js/custom.js' %}"></script>
+    <script src="{% static 'js/agent_ui_control.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/fontawesome.min.js" integrity="sha512-obFNtQ1JKCrxPBPLmYDUevlriATl5EhvwU3CFtdW/HKOkeAe0bbsyZfHO44/f1QyndrZJ464TQvrRP9ZjyXSSA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -91,11 +91,11 @@
     #chat-panel {
         display: none;
         position: fixed;
-        bottom: 100px;
-        right: 30px;
-        width: 420px;
-        max-height: calc(100vh - 140px);
-        height: 600px;
+        bottom: 120px; /* Adjusted to be above the button */
+        right: 30px; /* Aligned with the button */
+        width: 350px;
+        max-height: calc(100vh - 100px);
+        height: 500px;
         background-color: var(--px-bg);
         border: 2px solid var(--px-border);
         border-radius: 16px;
@@ -123,7 +123,7 @@
     .chat-header {
         background-color: var(--px-theme);
         color: var(--px-theme-text);
-        padding: 20px;
+        padding: 10px;
         border-bottom: 2px solid var(--px-border);
         display: flex;
         align-items: center;
@@ -132,7 +132,7 @@
 
     .chat-header h3 {
         margin: 0;
-        font-size: 20px;
+        font-size: 16px; /* Made smaller */
         font-weight: 500;
         letter-spacing: 1px;
     }
@@ -230,6 +230,7 @@
         word-wrap: break-word;
         border: 2px solid var(--px-border);
         position: relative;
+        font-size: 15px;
     }
 
     .user-message .message-content {
@@ -253,11 +254,11 @@
     }
 
     .suggestion-chip {
-        padding: 10px 16px;
+        padding: 6px 10px;
         background-color: var(--px-gray-1);
         border: 2px solid var(--px-border);
-        border-radius: 16px;
-        font-size: 13px;
+        border-radius: 12px;
+        font-size: 12px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.35s ease;
@@ -319,12 +320,12 @@
 
     #chat-input {
         flex: 1;
-        padding: 12px 16px;
+        padding: 8px 14px; /* Made smaller */
         border: 2px solid var(--px-border);
         border-radius: 10px;
         background-color: var(--px-bg);
         color: var(--px-text);
-        font-size: 14px;
+        font-size: 13px; /* Made smaller */
         transition: all 0.35s ease;
     }
 
@@ -340,7 +341,10 @@
     }
 
     .btn-send {
-        padding: 12px 24px;
+        display: flex; /* Center icon */
+        align-items: center; /* Center icon */
+        justify-content: center; /* Center icon */
+        padding: 8px 16px; /* Adjusted padding for icon */
         background-color: var(--px-theme);
         color: var(--px-theme-text);
         border: 2px solid var(--px-theme);
@@ -349,7 +353,7 @@
         cursor: pointer;
         transition: all 0.35s ease;
         text-transform: uppercase;
-        font-size: 13px;
+        font-size: 18px; /* Adjusted font size for icon */
         letter-spacing: 1px;
     }
 
@@ -360,18 +364,20 @@
     }
 
     .btn-export {
-        padding: 8px 16px;
-        background-color: transparent;
+        display: flex; /* Center icon */
+        align-items: center; /* Center icon */
+        justify-content: center; /* Center icon */
+        padding: 8px 12px; /* Adjusted padding for icon */
+        background-color: var(--px-gray-4);
         color: var(--px-theme);
-        border: 2px solid var(--px-border);
+        border: 1px solid var(--px-theme);
         border-radius: 10px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.35s ease;
-        font-size: 12px;
+        font-size: 16px; /* Adjusted font size for icon */
         text-transform: uppercase;
         letter-spacing: 1px;
-        width: 100%;
     }
 
     .btn-export:hover {
@@ -403,9 +409,9 @@
         #chat-panel {
             width: calc(100vw - 40px);
             right: 20px;
-            bottom: 90px;
+            bottom: 85px; /* Adjusted for smaller screens */
             height: auto;
-            max-height: calc(100vh - 110px);
+            max-height: calc(100vh - 100px);
         }
 
         #chat-widget-container {
@@ -428,8 +434,8 @@
         #chat-panel {
             width: calc(100vw - 30px);
             right: 15px;
-            bottom: 85px;
-            max-height: calc(100vh - 100px);
+            bottom: 80px; /* Adjusted for smaller screens */
+            max-height: calc(100vh - 90px);
         }
 
         #chat-widget-container {
@@ -492,12 +498,7 @@
         </div>
         
         <div id="chat-body">
-            <div class="chat-message agent-message">
-                <div class="avatar">AI</div>
-                <div class="message-content">
-                    Hello! I'm your AI assistant. How can I help you today?
-                </div>
-            </div>
+            <!-- Messages will be dynamically inserted here -->
         </div>
 
         <div class="chat-footer">
@@ -506,18 +507,15 @@
                 <div class="suggestion-chip">View portfolio</div>
                 <div class="suggestion-chip">Contact information</div>
             </div>
-            <form id="chat-form">
-                <input type="text" id="chat-input" class="form-control" placeholder="Ask me anything..." autocomplete="off">
-                <button type="submit" class="btn btn-send">Send</button>
-            </form>
-            <div class="mt-2 text-center">
-                <button id="export-chat-btn" class="btn btn-sm btn-export">Export Conversation</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="{% static 'js/chat.js' %}"></script>
+                        <form id="chat-form">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Ask me anything..." autocomplete="off">
+                            <button type="submit" class="btn btn-send"><i class='bx bx-send-alt-2'></i></button>
+                            <button id="export-chat-btn" class="btn btn-sm btn-export"><i class='bx bx-archive-arrow-down'></i></button>
+                        </form>                        </div>
+                    </div>
+                </div>
+                
+                
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+                <script src="{% static 'js/chat.js' %}?v=3"></script>

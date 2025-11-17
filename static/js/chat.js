@@ -96,9 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         chatWidget.body.innerHTML = '';
-        const greetingMessage = "Hi! I can help you learn about my skills, projects, or contact info.";
-        if (!chatHistory.length || chatHistory[0].text !== greetingMessage) {
-            chatHistory.unshift({ sender: 'agent', text: greetingMessage });
+
+        const initialMessage = "Hi! I'm Abdulla's AI assistant. Ask me about his skills, projects, or contact info. Try 'show projects' to see UI actions.";
+
+        // Check if the first message is our initial greeting. If not, we assume it's a new session or cleared history.
+        if (chatHistory.length === 0 || chatHistory[0].text !== initialMessage) {
+            // Clear history to ensure we start fresh with our new messages
+            chatHistory.length = 0; 
+            
+            const initialMessages = [
+                { sender: 'agent', text: initialMessage }
+            ];
+            // Add to history and save
+            chatHistory.push(...initialMessages);
+            saveChatHistory();
         }
 
         chatHistory.forEach(message => {
@@ -284,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Renders suggestion chips in the chat footer.
      */
     const renderSuggestionChips = () => {
-        const suggestions = ["Projects", "Skills", "Contact"];
+        const suggestions = ["Projects", "Skills", "Resume", "Services", "About Me", "Contact"];
         chatWidget.suggestionChipsContainer.innerHTML = '';
         suggestions.forEach(text => {
             const chip = document.createElement('div');
@@ -302,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullPrompts = {
             "Projects": "Show me your projects",
             "Skills": "What are your skills?",
+            "Resume": "Can I see your resume?",
+            "Services": "What services do you offer?",
+            "About Me": "Tell me about yourself",
             "Contact": "How can I contact you?"
         };
         chatWidget.input.value = fullPrompts[text] || text;
@@ -357,7 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             addMessageToChat('agent', data.text); // This will now trigger typing effect
-            handleAgentAction(data.action, data.data);
+            
+            // Delegate action handling to the global function from agent_ui_control.js
+            if (window.processAgentResponse) {
+                window.processAgentResponse(data);
+            }
 
         } catch (error) {
             console.error('Error querying agent:', error);
@@ -367,20 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Re-enable form
             chatWidget.input.disabled = false;
             chatWidget.form.querySelector('button').disabled = false;
-            chatWidget.input.focus();
+            // chatWidget.input.focus(); // Removed auto-focus as per user request
             renderSuggestionChips();
-        }
-    };
-
-    /**
-     * Executes special actions returned by the agent.
-     */
-    const handleAgentAction = (action, data) => {
-        if (!action) return;
-        if (action === 'show_projects') {
-            document.querySelector('.bento-item--projects')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (action === 'email' && data?.email) {
-            window.location.href = `mailto:${data.email}`;
         }
     };
 

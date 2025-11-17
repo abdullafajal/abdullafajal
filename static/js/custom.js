@@ -105,6 +105,52 @@
         }
     }
 
+    /*--------------------
+    * Load Testimonials
+    ----------------------*/
+    WEA.loadTestimonials = function() {
+        var $testimonialsCarousel = $(".testimonials-section .owl-carousel");
+        if ($testimonialsCarousel.length > 0) {
+            $.ajax({
+                url: "/api/testimonials/", // Assuming this endpoint exists
+                method: "GET",
+                success: function(response) {
+                    if (response && response.length > 0) {
+                        $testimonialsCarousel.empty(); // Clear existing static content
+                        response.forEach(function(testimonial) {
+                            var avatar = testimonial.avatar || '/static/images/default.jpg'; // Placeholder if no avatar
+                            var testimonialHtml = `
+                                <div class="testimonials-box">
+                                    <div class="t-lead">
+                                        <img src="${avatar}" title="" alt="" />
+                                    </div>
+                                    <div class="t-text">
+                                        <h5>${testimonial.title || 'Customer Feedback'}</h5>
+                                        <p>“${testimonial.quote}”</p>
+                                        <div class="t-avatar">
+                                            <h6>${testimonial.author}</h6>
+                                            <span>${testimonial.position || ''}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            $testimonialsCarousel.append(testimonialHtml);
+                        });
+
+                        // Re-initialize Owl Carousel after dynamic content is loaded
+                        WEA.Owl();
+                    } else {
+                        $testimonialsCarousel.html('<p>No testimonials available.</p>');
+                    }
+                },
+                error: function(error) {
+                    console.error("Error loading testimonials:", error);
+                    $testimonialsCarousel.html('<p>Failed to load testimonials.</p>');
+                }
+            });
+        }
+    }
+
     /* ---------------------------------------------- /*
        * lightbox gallery
       /* ---------------------------------------------- */
@@ -337,7 +383,7 @@
             }
 
             // fire the loader
-            body.appendChild(script);
+            body.appendChild(s2);
         } else if (callback) {
             callback();
         }
@@ -357,7 +403,8 @@
             WEA.mTypeIt(),
             WEA.one_page(),
             WEA.Counter(),
-            WEA.Owl();
+            WEA.Owl(),
+            WEA.loadTestimonials();
     });
 
     // Document on Scrool
