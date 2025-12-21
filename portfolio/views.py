@@ -12,8 +12,9 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import ContactForm
+from .forms import ContactForm, ComposeEmailForm
 from .models import ChatLog, Project, ContactMessage
+from django.contrib.auth.decorators import user_passes_test
 
 # --- Configure Gemini API ---
 try:
@@ -251,6 +252,7 @@ def get_resume_summary(resume_data):
 def agent_query(request):
     """API endpoint to handle queries for the AI agent using Gemini."""
     if request.method != 'POST':
+
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
     try:
@@ -363,3 +365,44 @@ User prompt: {prompt}
 
     ChatLog.objects.create(user_message=prompt, agent_response=response_data.get("text", ""))
     return JsonResponse(response_data)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def compose_email(request):
+    """
+    View for superusers to compose and send emails.
+    """
+    if request.method == 'POST':
+        form = ComposeEmailForm(request.POST)
+        if form.is_valid():
+            recipient = form.cleaned_data['recipient']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            
+            # --- Render HTML Email ---
+            html_message = render_to_string('emails/special_template.html', {
+                'subject': subject,
+                'message': message,
+            })
+            
+            # --- Send Email Async ---
+            try:
+                threading.Thread(
+                    target=_send_mail_async,
+                    args=(
+                        subject,
+                        message, # Plain text fallback
+                        getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
+                        [recipient],
+                        html_message,
+                    )
+                ).start()
+                messages.success(request, f"Email sent successfully to {recipient}!")
+                return redirect('portfolio:compose_email')
+            except Exception as e:
+                print(f"Error sending email: {e}")
+                messages.error(request, "Failed to send email. Check console logs.")
+    else:
+        form = ComposeEmailForm()
+    
+    return render(request, 'portfolio/compose_email.html', {'form': form})

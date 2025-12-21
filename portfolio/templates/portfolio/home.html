@@ -100,6 +100,16 @@
             <span class="m-text">{% trans "Contact" %}</span>
           </a>
         </li>
+        <li>
+          {% if request.user.is_superuser %}
+          <a href="{% url 'portfolio:compose_email' %}">
+            <span class="m-icon">
+                <i class='bx bx-envelope i-waight-800'></i>
+            </span>
+            <span class="m-text">{% trans "Compose" %}</span>
+          </a>
+          {% endif %}
+        </li>
       </ul>
     </div>
     <!-- Main -->
