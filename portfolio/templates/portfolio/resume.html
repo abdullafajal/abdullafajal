@@ -29,39 +29,22 @@
                     <!-- Professional Summary -->
                     <div class="my-4">
                         <h2 class="mb-3 font-display">Professional Summary</h2>
-                        <p class="lead text-muted">{{ summary }}</p>
+                        <div class="lead text-muted">{{ summary|safe }}</div>
+                    </div>
                     </div>
                     <hr class="my-4">
 
                     <!-- Professional Experience -->
                     <div class="my-4">
                         <h2 class="mb-4 font-display">Professional Experience</h2>
-                        {% for job in experience %}
-                        <div class="mb-4">
-                            <h4>{{ job.title }}</h4>
-                            <p class="text-muted">{{ job.company }} | {{ job.location }} | {{ job.duration }}</p>
-                            <ul class="list-unstyled space-y-2">
-                                {% for point in job.points %}
-                                <li>- {{ point }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p><strong>Tech Stack:</strong> <span class="text-muted">{{ job.tech_stack }}</span></p>
-                        </div>
-                        {% endfor %}
+                        {{ experience|safe }}
                     </div>
                     <hr class="my-4">
 
                     <!-- Key Skills -->
                     <div class="my-4">
                         <h2 class="mb-4 font-display">Key Skills</h2>
-                        <div class="row g-4">
-                            {% for category, skills_list in skills.items %}
-                            <div class="col-md-6">
-                                <h5>{{ category }}</h5>
-                                <p class="text-muted">{{ skills_list|join:", " }}</p>
-                            </div>
-                            {% endfor %}
-                        </div>
+                        {{ skills|safe }}
                     </div>
                     <hr class="my-4">
 

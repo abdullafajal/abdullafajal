@@ -1,60 +1,493 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compose Email - Abdulla Fajal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+  :root {
+    --compose-bg: #F7FBFF;
+    --compose-surface: #ffffff;
+    --compose-primary: #154d71;
+    --compose-primary-light: rgba(21,77,113,0.08);
+    --compose-primary-glow: rgba(21,77,113,0.25);
+    --compose-text: #181C1F;
+    --compose-text-muted: #6F787D;
+    --compose-border: #DCE4E9;
+    --compose-hover: #EDF1F6;
+    --compose-ai-start: #154d71;
+    --compose-ai-end: #154d71;
+    --compose-radius: 16px;
+    --compose-radius-sm: 10px;
+  }
 
-{% block content %}
-<div class="container py-5 mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Compose Email (Superuser)</h3>
-                </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="text-danger">
-                                        {{ field.errors }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Send Email</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+  body { background: var(--compose-bg) !important; margin: 0; }
+
+  .composer-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Header */
+  .composer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .composer-header h2 {
+    font-size: 1.5rem; font-weight: 700; color: var(--compose-text); margin: 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .composer-header h2 .icon-circle {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--compose-primary), #1e6fa0);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+  }
+  .header-actions { display: flex; gap: 8px; }
+  .btn-header {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 10px; border: 1.5px solid var(--compose-border);
+    background: var(--compose-surface); color: var(--compose-text-muted);
+    font-size: 0.85rem; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; font-family: 'Inter', sans-serif;
+    text-decoration: none;
+  }
+  .btn-header:hover { background: var(--compose-hover); color: var(--compose-text); border-color: #cbd5e1; transform: translateY(-1px); }
+  .btn-header svg { width: 16px; height: 16px; }
+  .btn-header.logout { border-color: #fecaca; color: #dc2626; background: #fef2f2; }
+  .btn-header.logout:hover { background: #fee2e2; border-color: #f87171; }
+
+  /* Alerts */
+  .compose-alert {
+    padding: 12px 16px; border-radius: var(--compose-radius-sm);
+    margin-bottom: 16px; font-size: 0.875rem; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+    animation: slideDown 0.3s ease;
+  }
+  .compose-alert.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+  .compose-alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .compose-alert .close-alert {
+    margin-left: auto; background: none; border: none;
+    cursor: pointer; font-size: 18px; opacity: 0.5; color: inherit;
+  }
+
+  /* Card */
+  .composer-card {
+    background: var(--compose-surface);
+    border-radius: var(--compose-radius);
+    border: 1px solid var(--compose-border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 4px 16px rgba(21,77,113,0.06), 0 12px 32px rgba(0,0,0,0.04);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+  }
+  .composer-card:focus-within {
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 4px 16px rgba(21,77,113,0.1), 0 16px 40px rgba(0,0,0,0.06);
+  }
+
+  /* Field rows */
+  .field-row {
+    display: flex; align-items: center;
+    padding: 0 24px; min-height: 52px;
+    border-bottom: 1px solid var(--compose-border);
+    transition: background 0.2s;
+  }
+  .field-row:hover { background: var(--compose-hover); }
+  .field-row label {
+    width: 80px; font-size: 0.8rem; font-weight: 600;
+    color: var(--compose-text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px; flex-shrink: 0;
+  }
+  .field-row input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 0.95rem; color: var(--compose-text);
+    font-family: 'Inter', sans-serif; padding: 14px 0;
+  }
+  .field-row input::placeholder { color: #8B9297; }
+
+  /* Subject row */
+  .subject-row {
+    display: flex; align-items: center;
+    padding: 0 24px; min-height: 56px;
+    border-bottom: 1px solid var(--compose-border);
+    transition: background 0.2s;
+  }
+  .subject-row:hover { background: var(--compose-hover); }
+  .subject-row input {
+    flex: 1; border: none; outline: none; background: transparent;
+    font-size: 1.1rem; font-weight: 600; color: var(--compose-text);
+    font-family: 'Inter', sans-serif; padding: 16px 0;
+  }
+  .subject-row input::placeholder { color: #8B9297; font-weight: 400; }
+
+  /* Editor area */
+  .editor-area { padding: 0; position: relative; }
+  .ck.ck-editor__editable_inline { min-height: 350px !important; padding: 20px 24px !important; }
+  .ck.ck-editor__editable_inline:focus { border: none !important; box-shadow: none !important; }
+  .ck.ck-editor { border: none !important; }
+  .ck.ck-toolbar { border: none !important; border-bottom: 1px solid var(--compose-border) !important; background: var(--compose-hover) !important; padding: 6px 16px !important; }
+  .ck.ck-editor__editable { border: none !important; }
+
+  /* Bottom bar */
+  .composer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid var(--compose-border);
+    background: var(--compose-hover);
+  }
+  .bottom-left { display: flex; gap: 8px; align-items: center; }
+
+  /* Send button */
+  .btn-send {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 32px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--compose-primary), #1e6fa0);
+    color: #fff; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 14px var(--compose-primary-glow);
+  }
+  .btn-send:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--compose-primary-glow); filter: brightness(1.1); }
+  .btn-send:active { transform: translateY(0); }
+  .btn-send svg { width: 18px; height: 18px; }
+
+  /* AI Button */
+  .btn-ai {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--compose-ai-start), var(--compose-ai-end));
+    color: #fff; font-weight: 600; font-size: 0.875rem;
+    cursor: pointer; transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+    position: relative; overflow: hidden;
+  }
+  .btn-ai::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+  .btn-ai:hover::before { opacity: 1; }
+  .btn-ai svg { width: 16px; height: 16px; }
+
+  /* AI Panel Overlay */
+  .ai-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px); z-index: 9998;
+    opacity: 0; visibility: hidden; transition: all 0.3s ease;
+  }
+  .ai-overlay.active { opacity: 1; visibility: visible; }
+
+  /* AI Panel */
+  .ai-panel {
+    position: fixed; top: 0; right: -460px; width: 440px; height: 100%;
+    background: #fff; z-index: 9999;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+    transition: right 0.4s cubic-bezier(0.16,1,0.3,1);
+    display: flex; flex-direction: column;
+  }
+  .ai-panel.active { right: 0; }
+
+  .ai-panel-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--compose-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ai-panel-header h3 {
+    margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--compose-text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ai-panel-header h3 .ai-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--compose-ai-start), var(--compose-ai-end));
+    color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ai-close-btn {
+    width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--compose-border);
+    background: transparent; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    color: var(--compose-text-muted); transition: all 0.2s;
+    font-size: 18px;
+  }
+  .ai-close-btn:hover { background: #f1f5f9; color: var(--compose-text); }
+
+  .ai-panel-body { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+
+  .ai-prompt-group label {
+    display: block; font-size: 0.8rem; font-weight: 600;
+    color: var(--compose-text-muted); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .ai-prompt-group textarea {
+    width: 100%; border: 1.5px solid var(--compose-border); border-radius: var(--compose-radius-sm);
+    padding: 14px 16px; font-size: 0.9rem; font-family: 'Inter', sans-serif;
+    color: var(--compose-text); resize: vertical; min-height: 120px;
+    transition: border-color 0.2s; outline: none; box-sizing: border-box;
+  }
+  .ai-prompt-group textarea:focus { border-color: var(--compose-ai-start); }
+  .ai-prompt-group textarea::placeholder { color: #94a3b8; }
+
+  /* Suggestion chips */
+  .ai-suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ai-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--compose-border);
+    background: #fff; color: var(--compose-text-muted); font-size: 0.78rem;
+    cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+  }
+  .ai-chip:hover { background: var(--compose-primary-light); color: var(--compose-primary); border-color: var(--compose-primary); }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%; padding: 14px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--compose-ai-start), var(--compose-ai-end));
+    color: #fff; font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.3s;
+    font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+  .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* AI Preview */
+  .ai-preview {
+    border: 1.5px solid var(--compose-border); border-radius: var(--compose-radius-sm);
+    padding: 16px; max-height: 250px; overflow-y: auto;
+    font-size: 0.9rem; line-height: 1.6; color: var(--compose-text);
+    background: #fafbfc; display: none;
+  }
+  .ai-preview.show { display: block; }
+
+  .btn-insert {
+    width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--compose-primary);
+    background: var(--compose-primary-light); color: var(--compose-primary);
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    transition: all 0.3s; font-family: 'Inter', sans-serif;
+    display: none; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-insert.show { display: flex; }
+  .btn-insert:hover { background: var(--compose-primary); color: #fff; }
+
+  /* Spinner */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .composer-wrapper { padding: 16px 8px 32px; }
+    .field-row, .subject-row { padding: 0 16px; }
+    .composer-bottom { padding: 12px 16px; flex-wrap: wrap; gap: 12px; }
+    .ai-panel { width: 100%; right: -100%; }
+    .composer-header h2 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="composer-wrapper">
+  <!-- Header -->
+  <div class="composer-header">
+    <h2>
+      <span class="icon-circle">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+      </span>
+      Compose Email
+    </h2>
+    <div class="header-actions">
+      <a href="{% url 'portfolio:home' %}" class="btn-header">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        Home
+      </a>
+      <a href="/admin/logout/" class="btn-header logout">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+        Logout
+      </a>
     </div>
+  </div>
+
+  <!-- Alerts -->
+  {% if messages %}
+    {% for message in messages %}
+    <div class="compose-alert {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+      <span>{% if message.tags == 'error' %}⚠{% else %}✓{% endif %}</span>
+      {{ message }}
+      <button class="close-alert" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Composer Card -->
+  <form method="post" id="composeForm" novalidate>
+    {% csrf_token %}
+    <div class="composer-card">
+      <!-- To -->
+      <div class="field-row">
+        <label for="id_recipient">To</label>
+        <input type="email" name="recipient" id="id_recipient" placeholder="recipient@example.com" value="{{ form.recipient.value|default:'' }}" required>
+      </div>
+      <!-- CC -->
+      <div class="field-row">
+        <label for="id_cc">Cc</label>
+        <input type="email" name="cc" id="id_cc" placeholder="cc@example.com (optional)" value="{{ form.cc.value|default:'' }}">
+      </div>
+      <!-- BCC -->
+      <div class="field-row">
+        <label for="id_bcc">Bcc</label>
+        <input type="email" name="bcc" id="id_bcc" placeholder="bcc@example.com (optional)" value="{{ form.bcc.value|default:'' }}">
+      </div>
+      <!-- Subject -->
+      <div class="subject-row">
+        <input type="text" name="subject" id="id_subject" placeholder="Subject" value="{{ form.subject.value|default:'' }}" maxlength="200" required>
+      </div>
+      <!-- Editor -->
+      <div class="editor-area">
+        <textarea name="message" id="id_message" style="display:none;">{{ form.message.value|default:'' }}</textarea>
+      </div>
+      <!-- Bottom Bar -->
+      <div class="composer-bottom">
+        <div class="bottom-left">
+          <button type="submit" class="btn-send" id="sendBtn">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+            Send
+          </button>
+          <button type="button" class="btn-ai" id="aiBtn" onclick="openAIPanel()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>
+            AI Write
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 
+<!-- AI Panel Overlay -->
+<div class="ai-overlay" id="aiOverlay" onclick="closeAIPanel()"></div>
+
+<!-- AI Slide Panel -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-header">
+    <h3>
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+      AI Assistant <span class="ai-badge">Gemini</span>
+    </h3>
+    <button class="ai-close-btn" onclick="closeAIPanel()">×</button>
+  </div>
+  <div class="ai-panel-body">
+    <div class="ai-prompt-group">
+      <label>What should the email say?</label>
+      <textarea id="aiPrompt" placeholder="e.g. Write a follow-up email about the project deadline extension..."></textarea>
+    </div>
+    <div>
+      <label style="display:block;font-size:0.75rem;font-weight:600;color:var(--compose-text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Quick ideas</label>
+      <div class="ai-suggestions">
+        <button type="button" class="ai-chip" onclick="setPrompt('Write a professional follow-up email')">Follow-up</button>
+        <button type="button" class="ai-chip" onclick="setPrompt('Write a meeting invitation email')">Meeting invite</button>
+        <button type="button" class="ai-chip" onclick="setPrompt('Write a project update email')">Project update</button>
+        <button type="button" class="ai-chip" onclick="setPrompt('Write a thank you email')">Thank you</button>
+        <button type="button" class="ai-chip" onclick="setPrompt('Write an introduction email')">Introduction</button>
+        <button type="button" class="ai-chip" onclick="setPrompt('Write a proposal email')">Proposal</button>
+      </div>
+    </div>
+    <button type="button" class="btn-generate" id="generateBtn" onclick="generateEmail()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+      Generate Email
+    </button>
+    <div class="ai-preview" id="aiPreview"></div>
+    <button type="button" class="btn-insert" id="insertBtn" onclick="insertContent()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      Insert into Email
+    </button>
+  </div>
+</div>
+
+
 <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
-<style>
-    .ck-editor__editable {
-        min-height: 300px;
-    }
-</style>
 <script>
-    ClassicEditor
-        .create(document.querySelector('#id_message'))
-        .catch(error => {
-            console.error(error);
-        });
+let editorInstance = null;
+let generatedContent = '';
+
+// Init CKEditor
+ClassicEditor
+  .create(document.querySelector('#id_message'), {
+    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', '|', 'link', 'blockQuote', '|', 'undo', 'redo'],
+    placeholder: 'Write your email here...'
+  })
+  .then(editor => { editorInstance = editor; })
+  .catch(err => console.error(err));
+
+// AI Panel
+function openAIPanel() {
+  document.getElementById('aiPanel').classList.add('active');
+  document.getElementById('aiOverlay').classList.add('active');
+  document.getElementById('aiPrompt').focus();
+}
+function closeAIPanel() {
+  document.getElementById('aiPanel').classList.remove('active');
+  document.getElementById('aiOverlay').classList.remove('active');
+}
+function setPrompt(text) {
+  document.getElementById('aiPrompt').value = text;
+  document.getElementById('aiPrompt').focus();
+}
+
+// Generate email via AI
+async function generateEmail() {
+  const prompt = document.getElementById('aiPrompt').value.trim();
+  if (!prompt) { document.getElementById('aiPrompt').focus(); return; }
+
+  const btn = document.getElementById('generateBtn');
+  const preview = document.getElementById('aiPreview');
+  const insertBtn = document.getElementById('insertBtn');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  preview.classList.remove('show');
+  insertBtn.classList.remove('show');
+
+  try {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const res = await fetch("{% url 'portfolio:ai_generate_email' %}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+      body: JSON.stringify({
+        prompt: prompt,
+        subject: document.getElementById('id_subject').value,
+        recipient: document.getElementById('id_recipient').value
+      })
+    });
+    const data = await res.json();
+    if (data.content) {
+      generatedContent = data.content;
+      preview.innerHTML = data.content;
+      preview.classList.add('show');
+      insertBtn.classList.add('show');
+    } else {
+      preview.innerHTML = '<p style="color:#ef4444;">' + (data.error || 'Something went wrong') + '</p>';
+      preview.classList.add('show');
+    }
+  } catch (e) {
+    preview.innerHTML = '<p style="color:#ef4444;">Network error. Please try again.</p>';
+    preview.classList.add('show');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg> Generate Email';
+}
+
+// Insert AI content into CKEditor
+function insertContent() {
+  if (editorInstance && generatedContent) {
+    editorInstance.setData(generatedContent);
+    closeAIPanel();
+  }
+}
+
+// Keyboard shortcut: Escape to close panel
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAIPanel();
+});
 </script>
-{% endblock %}
+</body>
+</html>

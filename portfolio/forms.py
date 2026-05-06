@@ -27,6 +27,14 @@ class ComposeEmailForm(forms.Form):
     recipient = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Recipient Email'})
     )
+    cc = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'CC'}),
+    )
+    bcc = forms.EmailField(
+        required=False,
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'BCC'}),
+    )
     subject = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Subject'})

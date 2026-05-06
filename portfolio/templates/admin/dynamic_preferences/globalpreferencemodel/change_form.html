@@ -1,0 +1,32 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var textareas = document.querySelectorAll('textarea');
+        textareas.forEach(function(textarea) {
+            if (textarea.rows && textarea.rows < 3) return;
+
+            CKEDITOR.replace(textarea, {
+                allowedContent: true,
+                height: 350,
+                toolbar: [
+                    { name: 'document', items: ['Source'] },
+                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat'] },
+                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
+                    { name: 'links', items: ['Link', 'Unlink'] },
+                    { name: 'insert', items: ['Table', 'HorizontalRule'] },
+                    { name: 'styles', items: ['Format', 'Styles'] },
+                    { name: 'tools', items: ['Maximize'] }
+                ],
+                removePlugins: 'elementspath',
+                extraAllowedContent: '*(*);*{*}',
+            });
+        });
+    }, 200);
+});
+</script>
+{% endblock %}

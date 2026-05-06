@@ -217,3 +217,8 @@ PWA_APP_URLS = (
 )
 PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, "static/serviceworker.js")
 
+# Session settings — keep superusers logged in for 30 days
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days in seconds
+SESSION_SAVE_EVERY_REQUEST = True  # Reset expiry on each request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+

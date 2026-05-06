@@ -125,7 +125,7 @@
                 <h2>{% trans "I'm a" %} <span id="type-it"></span></h2>
                 <p class="pe-lg-5">{% trans "Python backend developer specializing in Django — building REST APIs with Django REST Framework, PostgreSQL-backed systems and Celery background tasks." %}</p>
                 <div class="btn-bar">
-                  <a class="px-btn px-btn-theme" href="{% static 'Abdulla S25.pdf' %}" target="_blank" download>Download Resume
+                  <a class="px-btn px-btn-theme" href="{% if resume_file_url %}{{ resume_file_url }}{% else %}{% static 'Abdulla S25.pdf' %}{% endif %}" target="_blank" download>Download Resume
                      <i class="bx bx-folder-down-arrow i-waight-800"/></i>
                     </a>
                 </div>
@@ -187,47 +187,7 @@
             <span>Experience</span>
             </div>
             <div class="resume-box">
-            <ul>
-              <li>
-                <div class="icon">
-                <i class='bx  bx-building-house i-waight-800'></i> 
-                </div>
-                <span class="time">Apr 2024 - Present</span>
-                <h5>Senior Django Developer - Aquevix Solutions Pvt Ltd.</h5>
-                <p>Working as a Django developer on backend systems: REST APIs with Django REST Framework, PostgreSQL optimization, and Celery background tasks.</p>
-              </li>
-              <li>
-                <div class="icon">
-                    <i class='bx  bx-wallet-note i-waight-800'></i> 
-                </div>
-                <span class="time">2023 - 2024</span>
-                <h5>Freelance Django Developer - Espere Project</h5>
-                <p>Delivered backend features, API endpoints, and deployment automation for the Espere Project as a freelance Django developer.</p>
-              </li>
-            <li>
-                <div class="icon">
-                    <i class='bx  bx-camping i-waight-800'></i> 
-                </div>
-                <span class="time">2023</span>
-                <h5>Freelance Django Developer - Taj Mahal Tours</h5>
-                <p>
-                    Built and deployed <a href="http://tajmahaltourspackages.com/" target="_blank" rel="noopener">tajmahaltourspackages.com</a>
-                    using Django &amp; Django REST Framework with PostgreSQL and Celery. Frontend uses Tabler UI and Unpoly for fast partial-page updates, supplemented by AJAX where needed for async interactions.
-                </p>
-                <p class="mt-2">
-                    Role: backend development, API design, payment integration, deployment (AWS EC2).
-                </p>
-                {% comment %} <div class="tech-stack mt-2">
-                    <span class="badge bg-light text-dark me-1">Django</span>
-                    <span class="badge bg-light text-dark me-1">DRF</span>
-                    <span class="badge bg-light text-dark me-1">PostgreSQL</span>
-                    <span class="badge bg-light text-dark me-1">Celery</span>
-                    <span class="badge bg-light text-dark me-1">AWS EC2</span>
-                    <span class="badge bg-light text-dark me-1">Tabler</span>
-                    <span class="badge bg-light text-dark">Unpoly / AJAX</span>
-                </div> {% endcomment %}
-            </li>
-            </ul>
+            {{ resume.about_experience|safe }}
             </div>
           </div>
           <div class="col-lg-7 sticky-lg-top ps-xl-5">
@@ -285,7 +245,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-type-pdf"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M17 18h2" /><path d="M20 15h-3v6" /><path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z" /></svg>
                   </div>
                   <div class="a-text">
-                    <a class="text-reset stretched-link" href="{% static 'Abdulla S25.pdf' %}" target="_blank" download>Resume</a>
+                    <a class="text-reset stretched-link" href="{% if resume_file_url %}{{ resume_file_url }}{% else %}{% static 'Abdulla S25.pdf' %}{% endif %}" target="_blank" download>Resume</a>
                   </div>
                 </li>
                 </ul>
@@ -501,7 +461,7 @@
                     <p class="mb-0"><strong>Location:</strong> {{ resume.address }}</p>
                   </div>
                   <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <a class="px-btn px-btn-outline" href="{% static 'Abdulla S25.pdf' %}" target="_blank" download>Download Resume (PDF)</a>
+                    <a class="px-btn px-btn-outline" href="{% if resume_file_url %}{{ resume_file_url }}{% else %}{% static 'Abdulla S25.pdf' %}{% endif %}" target="_blank" download>Download Resume (PDF)</a>
                   </div>
                 </div>
               </div>
@@ -519,32 +479,12 @@
 
               <div id="resume-experience" class="p-4 rounded mb-4">
                 <div class="title-01"><span>Experience</span></div>
-                {% for job in resume.experience %}
-                <div class="resume-job mt-3 pb-2 border-bottom" id="experience-{{ job.slug }}">
-                  <h6 class="mb-0">{{ job.title }} <small class="text-muted">— {{ job.company }}</small></h6>
-                  <p class="mb-1"><small class="text-muted">{{ job.location }} · {{ job.duration }}</small></p>
-                  <ul class="mb-2">
-                    {% for p in job.points %}
-                    <li>{{ p }}</li>
-                    {% endfor %}
-                  </ul>
-                  {% if job.tech_stack %}
-                  <p class="mb-0"><strong>Tech:</strong> {{ job.tech_stack }}</p>
-                  {% endif %}
-                </div>
-                {% endfor %}
+                {{ resume.experience|safe }}
               </div>
 
               <div id="resume-skills" class="p-4 rounded mb-4">
                 <div class="title-01"><span>Skills</span></div>
-                <div class="row mt-2">
-                  {% for category, items in resume.skills.items %}
-                  <div class="col-md-6">
-                    <h6>{{ category }}</h6>
-                    <p class="mb-2">{{ items|join:", " }}</p>
-                  </div>
-                  {% endfor %}
-                </div>
+                {{ resume.skills|safe }}
               </div>
             </div>
           </div>

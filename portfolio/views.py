@@ -13,8 +13,10 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import ContactForm, ComposeEmailForm
-from .models import ChatLog, Project, ContactMessage
+from .models import ChatLog, Project, ContactMessage, ResumeFile
 from django.contrib.auth.decorators import user_passes_test
+from django.core.mail import EmailMultiAlternatives
+
 
 # --- Configure Gemini API ---
 try:
@@ -23,20 +25,25 @@ except AttributeError:
     print("Warning: GEMINI_API_KEY not found in settings. The agent will not work.")
     pass
 
-def _send_mail_async(subject, message, from_email, recipient_list, html_message):
+def _send_mail_async(subject, message, from_email, recipient_list, cc=None, bcc=None, html_message=None):
     """Helper function to send email in a separate thread."""
     try:
-        send_mail(
+        email = EmailMultiAlternatives(
             subject=subject,
-            message=message,
+            body=message,
             from_email=from_email,
-            recipient_list=recipient_list,
-            html_message=html_message,
-            fail_silently=False,
+            to=recipient_list,
+            cc=cc or [],
+            bcc=bcc or [],
         )
+
+        if html_message:
+            email.attach_alternative(html_message, "text/html")
+
+        email.send(fail_silently=False)
+
     except Exception as e:
         print(f"Error sending email asynchronously: {e}")
-
 
 # --- Helper Functions ---
 
@@ -87,7 +94,10 @@ def home(request):
     projects = Project.objects.all().order_by('display_order')
     # include resume data so the home page can render the resume section as HTML
     resume = get_resume_data()
-    context = {"projects": projects, "resume": resume}
+    # Get latest resume file for download button
+    resume_file = ResumeFile.objects.first()
+    resume_file_url = resume_file.file.url if resume_file else None
+    context = {"projects": projects, "resume": resume, "resume_file_url": resume_file_url}
     return render(request, "portfolio/home.html", context)
 
 
@@ -173,60 +183,33 @@ def contact_view(request):
 def resume_view(request):
     """Renders the resume page with data parsed from the PDF."""
     resume_data = get_resume_data()
+    resume_file = ResumeFile.objects.first()
+    resume_data['resume_file_url'] = resume_file.file.url if resume_file else None
     return render(request, 'portfolio/resume.html', resume_data)
 
 
 def get_resume_data():
-    """Return structured resume data.
+    """Return structured resume data from dynamic preferences.
 
-    Currently returns a hard-coded dict derived from the PDF in static files.
-    This central helper allows templates and views to share the same data.
+    Reads all resume fields from the global preferences registry.
+    HTML content fields (experience, skills) are stored as raw HTML.
     """
+    from dynamic_preferences.registries import global_preferences_registry
+    prefs = global_preferences_registry.manager()
+
     return {
-        "name": "ABDULLA",
-        "address": "C-39, Street No 10, Brijpuri Extension, Parwana Road, Delhi - 110051",
-        "email": "abdullafajal@gmail.com",
-        "mobile": "+91-8958468602",
-        "summary": "To obtain a challenging position as a Django and Flask Developer in a dynamic organization where I can apply my technical expertise, problem-solving abilities, and passion for building scalable applications to contribute to organizational success.",
-        "experience": [
-            {
-                "title": "Senior Django Developer",
-                "company": "Aquevix Pvt. Ltd.",
-                "slug": "aquevix",
-                "location": "New Delhi, India",
-                "duration": "Apr 2024 – Present",
-                "points": [
-                    "Developed video/audio streaming, live podcast, and subscription management modules for The News Junkie platform.",
-                    "Built secure REST APIs and implemented authentication systems using Django REST Framework.",
-                    "Managed PostgreSQL databases for efficient file storage and retrieval.",
-                    "Collaborated with frontend developers using Bootstrap and Unpoly to improve user experience.",
-                ],
-                "tech_stack": "Python, Django, Django REST Framework, PostgreSQL, Bootstrap, Tabler, GitHub"
-            },
-            {
-                "title": "Freelance Django Developer",
-                "company": "Espere Project",
-                "slug": "espere",
-                "location": "Remote",
-                "duration": "2023 – 2024",
-                "points": [
-                    "Designed and developed a multi-feature platform with blogging, live chat, social networking, and an embedded online compiler.",
-                    "Integrated Redis server, WebSockets, and social authentication for real-time communication.",
-                ],
-                "tech_stack": "Python, Django, Redis, WebSockets, PostgreSQL, AWS"
-            }
-        ],
-        "skills": {
-            "Languages": ["Python"],
-            "Frameworks": ["Django", "Django REST Framework", "Flask"],
-            "Databases": ["PostgreSQL"],
-            "Tools": ["PyCharm", "VS Code"],
-            "Miscellaneous": ["AWS EC2", "GIT", "Linux", "HTML", "CSS", "Bootstrap"],
-        },
+        "name": prefs.get('resume__name', 'ABDULLA'),
+        "address": prefs.get('resume__address', ''),
+        "email": prefs.get('resume__email', 'abdullafajal@gmail.com'),
+        "mobile": prefs.get('resume__mobile', '+91-8958468602'),
+        "summary": prefs.get('resume__summary', ''),
+        "experience": prefs.get('resume__experience', ''),
+        "skills": prefs.get('resume__skills', ''),
         "education": {
-            "degree": "B.Sc. Computer Science",
-            "university": "Mahatma Jyotiba Phule Rohilkhand University"
-        }
+            "degree": prefs.get('resume__education_degree', ''),
+            "university": prefs.get('resume__education_university', ''),
+        },
+        "about_experience": prefs.get('resume__about_experience', ''),
     }
 
 
@@ -236,15 +219,14 @@ def get_resume_summary(resume_data):
     summary += f"Email: {resume_data['email']}\n"
     summary += f"Phone: {resume_data['mobile']}\n"
     summary += f"Professional Summary: {resume_data['summary']}\n\n"
-    
-    summary += "Experience:\n"
-    for job in resume_data['experience']:
-        summary += f"- {job['title']} at {job['company']} ({job['duration']}).\n"
-        
-    summary += "\nKey Skills:\n"
-    for category, items in resume_data['skills'].items():
-        summary += f"- {category}: {', '.join(items)}\n"
-        
+
+    # Experience and skills are now HTML strings; include as-is for AI context
+    if resume_data.get('experience'):
+        summary += f"Experience:\n{resume_data['experience']}\n\n"
+
+    if resume_data.get('skills'):
+        summary += f"Skills:\n{resume_data['skills']}\n"
+
     return summary
 
 
@@ -376,6 +358,8 @@ def compose_email(request):
         form = ComposeEmailForm(request.POST)
         if form.is_valid():
             recipient = form.cleaned_data['recipient']
+            cc = form.cleaned_data['cc']
+            bcc = form.cleaned_data.get('bcc', '')
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
             
@@ -394,6 +378,8 @@ def compose_email(request):
                         message, # Plain text fallback
                         getattr(settings, 'DEFAULT_FROM_EMAIL', 'webmaster@localhost'),
                         [recipient],
+                        [cc] if cc else [],
+                        [bcc] if bcc else [],
                         html_message,
                     )
                 ).start()
@@ -406,3 +392,60 @@ def compose_email(request):
         form = ComposeEmailForm()
     
     return render(request, 'portfolio/compose_email.html', {'form': form})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def ai_generate_email(request):
+    """API endpoint to generate email content using Gemini AI."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        prompt = data.get('prompt', '').strip()
+        subject = data.get('subject', '').strip()
+        recipient = data.get('recipient', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if not prompt:
+        return JsonResponse({'error': 'Prompt is required'}, status=400)
+
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+
+        system_prompt = f"""You are a professional email writing assistant for Abdulla Fajal, a Senior Django Developer.
+Write a professional, well-structured email body based on the user's instructions.
+
+Context:
+- Sender: Abdulla Fajal (Softwere Developer)
+- Recipient: {recipient if recipient else 'Not specified'}
+- Subject: {subject if subject else 'Not specified'}
+
+Instructions from user: {prompt}
+
+Rules:
+- Write ONLY the email body content (no subject line, no "Subject:" prefix).
+- Use proper HTML formatting with <p>, <strong>, <em>, <ul>, <li> tags for structure.
+- Keep it professional, concise, and well-formatted.
+- Include appropriate greeting but do NOT include any sign-off like "Best regards", "Sincerely", "Thank you" etc.
+- Do NOT wrap in ```html``` code blocks, just return raw HTML.
+"""
+
+        response = model.generate_content([system_prompt])
+        generated_text = response.text.strip()
+
+        # Clean any markdown code block wrappers
+        if generated_text.startswith("```html"):
+            generated_text = generated_text[7:]
+        if generated_text.startswith("```"):
+            generated_text = generated_text[3:]
+        if generated_text.endswith("```"):
+            generated_text = generated_text[:-3]
+        generated_text = generated_text.strip()
+
+        return JsonResponse({'content': generated_text})
+
+    except Exception as e:
+        print(f"Error generating email content: {e}")
+        return JsonResponse({'error': 'Failed to generate content. Please try again.'}, status=500)

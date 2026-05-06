@@ -1,5 +1,34 @@
 from django.contrib import admin
-from .models import ChatLog, ContactMessage, Project
+from .models import ChatLog, ContactMessage, Project, ResumeFile
+
+from dynamic_preferences.admin import GlobalPreferenceAdmin
+from dynamic_preferences.models import GlobalPreferenceModel
+
+
+# ── Override Dynamic Preferences admin to add CKEditor on textareas ──────────
+
+class CKEditorGlobalPreferenceAdmin(GlobalPreferenceAdmin):
+    """Extends the default preferences admin with CKEditor for textarea fields."""
+
+    class Media:
+        js = (
+            'https://cdn.ckeditor.com/4.22.1/full/ckeditor.js',
+        )
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['ckeditor_init'] = True
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['ckeditor_init'] = True
+        return super().add_view(request, form_url, extra_context)
+
+
+# Unregister the default and register our custom one
+admin.site.unregister(GlobalPreferenceModel)
+admin.site.register(GlobalPreferenceModel, CKEditorGlobalPreferenceAdmin)
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -47,3 +76,10 @@ class ContactMessageAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Allow deletion if needed
         return True
+
+
+@admin.register(ResumeFile)
+class ResumeFileAdmin(admin.ModelAdmin):
+    """Admin view for ResumeFile model."""
+    list_display = ('file', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)

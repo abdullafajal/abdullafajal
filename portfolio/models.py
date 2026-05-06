@@ -59,3 +59,17 @@ class ContactMessage(models.Model):
         ordering = ['-created_at']
         verbose_name = "Contact Message"
         verbose_name_plural = "Contact Messages"
+
+
+class ResumeFile(models.Model):
+    """Stores the uploaded resume PDF. The latest upload is used for download buttons."""
+    file = models.FileField(upload_to='resumes/', help_text='Upload your resume PDF.')
+    uploaded_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name = "Resume File"
+        verbose_name_plural = "Resume Files"
+
+    def __str__(self):
+        return f"Resume uploaded {self.uploaded_at.strftime('%Y-%m-%d %H:%M')}"
