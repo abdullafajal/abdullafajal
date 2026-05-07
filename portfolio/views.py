@@ -25,7 +25,7 @@ except AttributeError:
     print("Warning: GEMINI_API_KEY not found in settings. The agent will not work.")
     pass
 
-def _send_mail_async(subject, message, from_email, recipient_list, cc=None, bcc=None, html_message=None):
+def _send_mail_async(subject, message, from_email, recipient_list, cc=None, bcc=None, html_message=None, attachments=None):
     """Helper function to send email in a separate thread."""
     try:
         email = EmailMultiAlternatives(
@@ -39,6 +39,11 @@ def _send_mail_async(subject, message, from_email, recipient_list, cc=None, bcc=
 
         if html_message:
             email.attach_alternative(html_message, "text/html")
+
+        # Attach files
+        if attachments:
+            for filename, content, mimetype in attachments:
+                email.attach(filename, content, mimetype)
 
         email.send(fail_silently=False)
 
@@ -355,13 +360,21 @@ def compose_email(request):
     View for superusers to compose and send emails.
     """
     if request.method == 'POST':
-        form = ComposeEmailForm(request.POST)
+        form = ComposeEmailForm(request.POST, request.FILES)
         if form.is_valid():
             recipient = form.cleaned_data['recipient']
             cc = form.cleaned_data['cc']
             bcc = form.cleaned_data.get('bcc', '')
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
+            
+            # Handle file attachment
+            attachments = []
+            attachment = request.FILES.get('attachment')
+            if attachment:
+                attachments.append(
+                    (attachment.name, attachment.read(), attachment.content_type)
+                )
             
             # --- Render HTML Email ---
             html_message = render_to_string('emails/special_template.html', {
@@ -381,6 +394,7 @@ def compose_email(request):
                         [cc] if cc else [],
                         [bcc] if bcc else [],
                         html_message,
+                        attachments,
                     )
                 ).start()
                 messages.success(request, f"Email sent successfully to {recipient}!")

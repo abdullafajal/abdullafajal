@@ -8,7 +8,7 @@
     <title>{{ subject }}</title>
     <style type="text/css">
         body {
-            background-color: #f4f6fa;
+            background-color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -21,21 +21,21 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 30px 2px;
+            padding: 30px 24px;
         }
 
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e6ebf1;
-            border-radius: 8px;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
             overflow: hidden;
             width: 100%;
         }
 
         .card-body {
-            padding: 15px 15px;
+            padding: 0;
             text-align: center;
         }
 
@@ -60,7 +60,7 @@
         }
 
         .text-body {
-            color: #656d77;
+            color: #232e3c;
             font-size: 16px;
             line-height: 24px;
             margin-bottom: 16px;
@@ -101,8 +101,8 @@
             }
 
             .card {
-                background-color: #232e3c !important;
-                border-color: #354153 !important;
+                background-color: transparent !important;
+                border-color: transparent !important;
             }
 
             h1,
@@ -155,8 +155,7 @@
             font-weight: 400;
             line-height: 1.4;
             margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .social-icons {
@@ -227,18 +226,6 @@
 
 <body>
     <div class="container">
-        <!-- Top Logo Row -->
-        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
-            <tr>
-                <td align="left" style="vertical-align: middle;">
-                    <img src="https://abdullafajal.pythonanywhere.com/static/icons/icon-192-192.png" alt="Logo"
-                        width="32" height="32" style="vertical-align: middle; border-radius: 4px;">
-                    <span style="font-weight: bold; color: #232e3c; font-size: 18px; vertical-align: middle;">Abdulla
-                        Fajal</span>
-                </td>
-            </tr>
-        </table>
-
         <!-- Main Card -->
         <div class="card">
             <div class="card-body">
@@ -254,41 +241,42 @@
                             <td style="vertical-align: middle;">
                                 <div style="display: flex; align-items: center;">
                                     <img src="https://abdullafajal.pythonanywhere.com/static/images/about.png"
-                                        alt="Abdulla Fajal" class="avatar" style="display: block; margin-right: 10px;">
+                                        alt="Abdulla" class="avatar" style="display: block; margin-right: 10px;">
                                     <div>
-                                        <div class="sender-name">Abdulla Fajal</div>
+                                        <div class="sender-name">Abdulla</div>
                                         <div class="sender-role">Software Developer</div>
-                                        <div class="sender-role" style="margin-top: 2px;"><img src="https://img.icons8.com/ios-filled/50/154d71/phone.png" alt="Phone" width="12" height="12" style="border:0;vertical-align:middle;margin-right:4px;"> +91-8958468602</div>
-                                        <div class="sender-role" style="margin-top: 2px;"><img src="https://img.icons8.com/ios-filled/50/154d71/new-post.png" alt="Email" width="12" height="12" style="border:0;vertical-align:middle;margin-right:4px;"> abdullafajal@gmail.com</div>
+                                        <div class="sender-role" style="margin-top: 2px;"><a href="tel:+918958468602"
+                                                style="color: #656d77; text-decoration: none;"><img
+                                                    src="https://img.icons8.com/ios-filled/50/154d71/phone.png"
+                                                    alt="Phone" width="12" height="12"
+                                                    style="border:0;vertical-align:middle;margin-right:4px;">
+                                                +91-8958468602</a></div>
+                                        <div class="sender-role" style="margin-top: 2px;"><a
+                                                href="mailto:abdullafajal@gmail.com"
+                                                style="color: #656d77; text-decoration: none;"><img
+                                                    src="https://img.icons8.com/ios-filled/50/154d71/new-post.png"
+                                                    alt="Email" width="12" height="12"
+                                                    style="border:0;vertical-align:middle;margin-right:4px;">
+                                                abdullafajal@gmail.com</a></div>
+                                        <div class="sender-role" style="margin-top: 2px;"><a
+                                                href="https://github.com/abdullafajal" target="_blank"
+                                                style="color: #656d77; text-decoration: none;"><img
+                                                    src="https://img.icons8.com/ios-filled/50/154d71/github.png"
+                                                    alt="GitHub" width="12" height="12"
+                                                    style="border:0;vertical-align:middle;margin-right:4px;">
+                                                https://github.com/abdullafajal</a></div>
+                                        <div class="sender-role" style="margin-top: 2px;"><a
+                                                href="https://www.linkedin.com/in/abdullafajal" target="_blank"
+                                                style="color: #656d77; text-decoration: none;"><img
+                                                    src="https://img.icons8.com/ios-filled/50/154d71/linkedin.png"
+                                                    alt="LinkedIn" width="12" height="12"
+                                                    style="border:0;vertical-align:middle;margin-right:4px;">
+                                                https://www.linkedin.com/in/abdullafajal</a></div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
                     </table>
-                </div>
-
-                <!-- Social Media Icons (Using #154d71) -->
-                <div class="social-icons">
-                    <a href="https://github.com/abdullafajal" class="social-link" target="_blank">
-                        <!-- GitHub Icon -->
-                        <img src="https://img.icons8.com/ios-filled/50/154d71/github.png" alt="GitHub" width="24"
-                            height="24" style="border: 0; display: inline-block;">
-                    </a>
-                    <a href="https://www.linkedin.com/in/abdullafajal" class="social-link" target="_blank">
-                        <!-- LinkedIn Icon -->
-                        <img src="https://img.icons8.com/ios-filled/50/154d71/linkedin.png" alt="LinkedIn" width="24"
-                            height="24" style="border: 0; display: inline-block;">
-                    </a>
-                    <a href="https://x.com/abdullafajal" class="social-link" target="_blank">
-                        <!-- X/Twitter Icon -->
-                        <img src="https://img.icons8.com/ios-filled/50/154d71/twitter.png" alt="X/Twitter" width="24"
-                            height="24" style="border: 0; display: inline-block;">
-                    </a>
-                    <a href="https://www.facebook.com/abdulla.fajal/" class="social-link" target="_blank">
-                        <!-- Facebook Icon -->
-                        <img src="https://img.icons8.com/ios-filled/50/154d71/facebook-new.png" alt="Facebook"
-                            width="24" height="24" style="border: 0; display: inline-block;">
-                    </a>
                 </div>
             </div>
         </div>

@@ -131,6 +131,37 @@
   .ck.ck-toolbar { border: none !important; border-bottom: 1px solid var(--compose-border) !important; background: var(--compose-hover) !important; padding: 6px 16px !important; }
   .ck.ck-editor__editable { border: none !important; }
 
+  /* Attachment row */
+  .attachment-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--compose-border);
+    transition: background 0.2s;
+  }
+  .attachment-row:hover { background: var(--compose-hover); }
+  .attachment-row label.attach-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 8px;
+    border: 1.5px dashed var(--compose-border);
+    color: var(--compose-text-muted); font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .attachment-row label.attach-label:hover {
+    border-color: var(--compose-primary); color: var(--compose-primary);
+    background: var(--compose-primary-light);
+  }
+  .attachment-row label.attach-label svg { width: 16px; height: 16px; }
+  .attachment-row input[type="file"] { display: none; }
+  .attachment-name {
+    font-size: 0.85rem; color: var(--compose-text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .attachment-name .remove-attach {
+    background: none; border: none; cursor: pointer;
+    color: #dc2626; font-size: 16px; padding: 0; line-height: 1;
+  }
+
   /* Bottom bar */
   .composer-bottom {
     display: flex; align-items: center; justify-content: space-between;
@@ -319,7 +350,7 @@
   {% endif %}
 
   <!-- Composer Card -->
-  <form method="post" id="composeForm" novalidate>
+  <form method="post" id="composeForm" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     <div class="composer-card">
       <!-- To -->
@@ -344,6 +375,15 @@
       <!-- Editor -->
       <div class="editor-area">
         <textarea name="message" id="id_message" style="display:none;">{{ form.message.value|default:'' }}</textarea>
+      </div>
+      <!-- Attachment -->
+      <div class="attachment-row">
+        <label class="attach-label" for="id_attachment">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/></svg>
+          Attach File
+        </label>
+        <input type="file" name="attachment" id="id_attachment" onchange="showFileName(this)">
+        <span class="attachment-name" id="attachmentName"></span>
       </div>
       <!-- Bottom Bar -->
       <div class="composer-bottom">
@@ -416,6 +456,22 @@ ClassicEditor
   })
   .then(editor => { editorInstance = editor; })
   .catch(err => console.error(err));
+
+// Attachment file name display
+function showFileName(input) {
+  const nameSpan = document.getElementById('attachmentName');
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+    nameSpan.innerHTML = `📎 ${file.name} (${sizeMB} MB) <button type="button" class="remove-attach" onclick="removeAttachment()" title="Remove">×</button>`;
+  } else {
+    nameSpan.innerHTML = '';
+  }
+}
+function removeAttachment() {
+  document.getElementById('id_attachment').value = '';
+  document.getElementById('attachmentName').innerHTML = '';
+}
 
 // AI Panel
 function openAIPanel() {

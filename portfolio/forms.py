@@ -42,3 +42,8 @@ class ComposeEmailForm(forms.Form):
     message = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Email Body', 'rows': 10})
     )
+    attachment = forms.FileField(
+        required=False,
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        help_text='Optional file attachment (max 10MB).'
+    )
